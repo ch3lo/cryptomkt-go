@@ -4,15 +4,17 @@ package conn
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/cryptomkt/cryptomkt-go/args"
-	"github.com/cryptomkt/cryptomkt-go/requests"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
 	"sort"
 	"strings"
+
+	"github.com/cryptomkt/cryptomkt-go/args"
+	"github.com/cryptomkt/cryptomkt-go/requests"
 )
 
 var (
@@ -82,7 +84,7 @@ func (client *Client) getPublic(endpoint string, request *requests.Request) ([]b
 
 // get comunicates to Cryptomarket via the http get method, also set
 // the needed headers of the request for an authenticated communication.
-func (client *Client) get(endpoint string, request *requests.Request) ([]byte, error) {
+func (client *Client) get(endpoint string, apiVersion string, request *requests.Request) ([]byte, error) {
 	args := request.GetArguments()
 	u, err := url.Parse(baseApiUri)
 	if err != nil {
@@ -183,5 +185,21 @@ func (client *Client) getReq(endpoint string, caller string, required []string, 
 	if err != nil {
 		return nil, fmt.Errorf("Error in %s: %s", caller, err)
 	}
-	return client.get(endpoint, req)
+	return client.get(endpoint, "v1", req)
+}
+
+func (client *Client) SocketAuthInfo() ([]byte, error) {
+	resp, err := client.get("socket/auth", "v2", requests.NewEmptyReq())
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+
+	var answer SocketInfo
+
+	json.Unmarshal([]byte(resp), &answer)
+	if answer.status == "error" {
+		return
+	}
+
+	return resp, nil
 }

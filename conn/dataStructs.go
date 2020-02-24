@@ -78,3 +78,13 @@ type Quantity struct {
 	Obtained string
 	Required string
 }
+type SocketData struct {
+	Uid    int
+	Socid  string
+	Verify string
+}
+
+type SocketInfo struct {
+	status string
+	Data   SocketData
+}

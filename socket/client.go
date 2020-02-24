@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-	"runtime"
-	"time"
-	"os"
 	"bufio"
 	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"time"
 
 	gosocketio "github.com/graarh/golang-socketio"
 	"github.com/graarh/golang-socketio/transport"
@@ -66,20 +66,7 @@ func main() {
 	}
 
 	time.Sleep(1 * time.Second)
-
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
-
-	time.Sleep(60 * time.Second)
-	c.Close()
-
-	log.Println(" [x] Complete")
-
 	var keysfile = "../keys.txt"
-
 
 	file, err := os.Open(keysfile)
 	if err != nil {
@@ -92,10 +79,20 @@ func main() {
 	apiKey := scanner.Text()
 	scanner.Scan()
 	apiSecret := scanner.Text()
-
 	client := conn.NewClient(apiKey, apiSecret)
-	
+
 	resp, _ := client.SocketAuthInfo()
 	fmt.Printf("%s", string(resp))
-	
+
+	go sendJoin(c)
+	go sendJoin(c)
+	go sendJoin(c)
+	go sendJoin(c)
+	go sendJoin(c)
+
+	time.Sleep(60 * time.Second)
+	c.Close()
+
+	log.Println(" [x] Complete")
+
 }

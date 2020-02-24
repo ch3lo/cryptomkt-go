@@ -13,7 +13,7 @@ import (
 //
 // https://developers.cryptomkt.com/#cuenta
 func (client *Client) GetAccount() (*Account, error) {
-	resp, err := client.get("account", requests.NewEmptyReq())
+	resp, err := client.get("account", "v1", requests.NewEmptyReq())
 	if err != nil {
 		return nil, fmt.Errorf("error making the request: %s", err)
 	}
@@ -30,7 +30,7 @@ func (client *Client) GetAccount() (*Account, error) {
 //
 // https://developers.cryptomkt.com/#obtener-balance
 func (client *Client) GetBalance() ([]Balance, error) {
-	resp, err := client.get("balance", requests.NewEmptyReq())
+	resp, err := client.get("balance", "v1", requests.NewEmptyReq())
 	if err != nil {
 		return nil, fmt.Errorf("error making the request: %s", err)
 	}
@@ -425,12 +425,11 @@ func (client *Client) GetPaymentStatus(arguments ...args.Argument) (*PaymentOrde
 
 // Public Endpoints:
 
-
 // GetMarkets returns the available markets in cryptomarket as a string slice
 //
 // https://developers.cryptomkt.com/mercado
 func (client *Client) GetMarkets() ([]string, error) {
-	resp, err := client.get("market", requests.NewEmptyReq())
+	resp, err := client.get("market", "v1", requests.NewEmptyReq())
 	if err != nil {
 		return nil, fmt.Errorf("error making the request: %s", err)
 	}

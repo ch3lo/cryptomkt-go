@@ -26,7 +26,7 @@ type Message struct {
 
 func sendJoin(c *gosocketio.Client, method string, data interface{}) {
 	log.Printf("Emiting %s", method)
-	resp, err := c.Ack(method, data, 120*time.Second)
+	resp, err := c.Ack(method, data, 125*time.Second)
 	if err != nil {
 		log.Fatal(err)
 	} else {

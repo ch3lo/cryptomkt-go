@@ -24,13 +24,23 @@ type Message struct {
 	Text    string `json:"text"`
 }
 
-func sendJoin(c *gosocketio.Client, method string, data interface{}) {
-	log.Printf("Emiting %s", method)
-	resp, err := c.Ack(method, data, 125*time.Second)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Printf("%s", resp)
+func sendJoin(c *gosocketio.Client, method string, data interface{}, mode string) {
+	if mode == "ack" {
+		log.Printf("Acking %s", method)
+		resp, err := c.Ack(method, data, 125*time.Second)
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			log.Printf("%s", resp)
+		}
+	} else if mode == "emit" {
+		log.Printf("Emiting %s", method)
+		err := c.Emit(method, data)
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			log.Println("Success")
+		}
 	}
 }
 
@@ -88,7 +98,7 @@ func main() {
 	respMap["uid"] = strconv.Itoa(respAsReference.Data.Uid)
 	respMap["socid"] = respAsReference.Data.Socid
 
-	sendJoin(c, "user-auth", respMap)
+	sendJoin(c, "user-auth", respMap, "emit")
 
 	log.Println(" [x] Complete")
 

@@ -188,7 +188,7 @@ func (client *Client) getReq(endpoint string, caller string, required []string, 
 	return client.get(endpoint, "v1", req)
 }
 
-func (client *Client) SocketAuthInfo() ([]byte, error) {
+func (client *Client) SocketAuthInfo() (*SocketInfo, error) {
 	resp, err := client.get("socket/auth", "v2", requests.NewEmptyReq())
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
@@ -198,8 +198,8 @@ func (client *Client) SocketAuthInfo() ([]byte, error) {
 
 	json.Unmarshal([]byte(resp), &answer)
 	if answer.status == "error" {
-		return
+		return nil, fmt.Errorf("Response from server failed")
 	}
 
-	return resp, nil
+	return &answer, nil
 }

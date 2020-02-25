@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"time"
 
 	gosocketio "github.com/graarh/golang-socketio"
@@ -24,13 +24,13 @@ type Message struct {
 	Text    string `json:"text"`
 }
 
-func sendJoin(c *gosocketio.Client) {
-	log.Println("Acking /join")
-	result, err := c.Ack("/join", Channel{"main"}, time.Second*5)
+func sendJoin(c *gosocketio.Client, method string, data interface{}) {
+	log.Printf("Emiting %s", method)
+	resp, err := c.Ack(method, data, 120*time.Second)
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		log.Println("Ack result to /join: ", result)
+		log.Printf("%s", resp)
 	}
 }
 
@@ -81,17 +81,14 @@ func main() {
 	apiSecret := scanner.Text()
 	client := conn.NewClient(apiKey, apiSecret)
 
-	resp, _ := client.SocketAuthInfo()
-	fmt.Printf("%s", string(resp))
+	respAsReference, _ := client.SocketAuthInfo()
 
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
-	go sendJoin(c)
+	respMap := make(map[string]string)
 
-	time.Sleep(60 * time.Second)
-	c.Close()
+	respMap["uid"] = strconv.Itoa(respAsReference.Data.Uid)
+	respMap["socid"] = respAsReference.Data.Socid
+
+	sendJoin(c, "user-auth", respMap)
 
 	log.Println(" [x] Complete")
 

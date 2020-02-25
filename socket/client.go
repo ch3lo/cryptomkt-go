@@ -27,7 +27,7 @@ type Message struct {
 func sendJoin(c *gosocketio.Client, method string, data interface{}, mode string) {
 	if mode == "ack" {
 		log.Printf("Acking %s", method)
-		resp, err := c.Ack(method, data, 125*time.Second)
+		resp, err := c.Ack(method, data, 90*time.Second)
 		if err != nil {
 			log.Fatal(err)
 		} else {
@@ -41,6 +41,8 @@ func sendJoin(c *gosocketio.Client, method string, data interface{}, mode string
 		} else {
 			log.Println("Success")
 		}
+	} else {
+		log.Fatal("Wrong option")
 	}
 }
 
@@ -54,6 +56,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//--------------------------Events---------------------------------------
 	err = c.On("/message", func(h *gosocketio.Channel, args Message) {
 		log.Println("--- Got chat message: ", args)
 	})
@@ -62,7 +65,7 @@ func main() {
 	}
 
 	err = c.On(gosocketio.OnDisconnection, func(h *gosocketio.Channel) {
-		log.Fatal("Disconnected")
+		log.Println("Disconnected")
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -71,9 +74,15 @@ func main() {
 	err = c.On(gosocketio.OnConnection, func(h *gosocketio.Channel) {
 		log.Println("Connected")
 	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
+	c.On("board", func(h *gosocketio.Channel, msg Message) {
+		log.Printf("Revieved board update %v", msg)
+	})
+
+	//-----------------------------------------------------------------------------
 
 	time.Sleep(1 * time.Second)
 	var keysfile = "../keys.txt"
@@ -98,7 +107,7 @@ func main() {
 	respMap["uid"] = strconv.Itoa(respAsReference.Data.Uid)
 	respMap["socid"] = respAsReference.Data.Socid
 
-	sendJoin(c, "user-auth", respMap, "emit")
+	sendJoin(c, "user-auth", respMap, "ack")
 
 	log.Println(" [x] Complete")
 
